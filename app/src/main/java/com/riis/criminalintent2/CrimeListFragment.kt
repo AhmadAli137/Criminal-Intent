@@ -3,9 +3,7 @@ package com.riis.criminalintent2
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -45,12 +43,46 @@ class CrimeListFragment : Fragment() {
         callbacks = context as Callbacks? //storing context in the callbacks property
     }
 
+    //INITIAL CREATION OF FRAGMENT
+    //----------------------------
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true) //because we want this fragment to be able to add its own menu options to
+        // ... to the app bar, we need to report this to the host activity so that
+        // ... we can override its onCreateOptionsMenu() function
+    }
+
+
     //WHEN THE FRAGMENT IS NO LONGER ATTACHED TO ITS PREVIOUSLY ATTACHED ACTIVITY
     //---------------------------------------------------------------------------
     override fun onDetach() {
         super.onDetach()
         callbacks = null //can no longer access activity, so don't call back
     }
+
+    //CREATING THE OPTIONS MENU
+    //-------------------------
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater) //takes in a menu resource id and an inflater
+        inflater.inflate(R.menu.fragment_crime_list, menu) //inflating the menu defined by fragment_crime_list.xml
+    }
+
+    //WHEN AN ITEM IS SELECTED FROM THE OPTIONS MENU
+    //==============================================
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            //when the new_crime menu item is selected...
+            R.id.new_crime -> {
+                val crime = Crime() //creating a new Crime object
+                crimeListViewModel.addCrime(crime) //adding the crime to the database
+                callbacks?.onCrimeSelected(crime.id) // passes the crime id to onCrimeSelected() in MainActivity which
+                                                     // ... creates a new CrimeFragment for the crime and displays it on screen
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
 
     //WHAT HAPPENS WHEN THE FRAGMENT VIEW designed using fragment_crime_list.xml IS BEING CREATED
     //-------------------------------------------------------------------------------------------

@@ -17,10 +17,12 @@ import java.util.*
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
+private const val DIALOG_DATE = "DialogDate"
+private const val REQUEST_DATE = 0
 
 //CrimeFragment is a fragment which controls the detail view when hosted by MainActivity
 //It is also the controller that interacts with the Crime model objects and the view objects
-class CrimeFragment : Fragment() {
+class CrimeFragment : Fragment(),  DatePickerFragment.Callbacks {
 
     //DEFINING CLASS VARIABLES
     private lateinit var crime: Crime
@@ -58,10 +60,6 @@ class CrimeFragment : Fragment() {
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
 
-        dateButton.apply {
-            text = crime.date.toString()//sets the button text to the crime object's date attribute
-            isEnabled = false//disables the button, it will not respond to being pressed
-        }
         return view
     }
 
@@ -113,6 +111,15 @@ class CrimeFragment : Fragment() {
                 crime.isSolved = isChecked //sets isSolved attribute of the crime object to the boolean isChecked (T/F)
             }
         }
+
+        //dateButton Listener
+        dateButton.setOnClickListener {
+            DatePickerFragment.newInstance(crime.date).apply { //getting an instance of the date picker fragment
+                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
+                show(this@CrimeFragment.parentFragmentManager, DIALOG_DATE) //Display the dialog, adding the fragment to the given FragmentManager.
+            }
+        }
+
     }
 
     //WHEN THE CRIME OBJECT HAS BEEN UPDATED, UPDATE THE UI VIEWS
@@ -132,6 +139,12 @@ class CrimeFragment : Fragment() {
         crimeDetailViewModel.saveCrime(crime) //saves the data of the current Crime object being accessed by the user before stopping the fragment
     }
 
+    //updating the crime date from the callbacks interface in DatePickerFragment.kt
+    override fun onDateSelected(date: Date) {
+        crime.date = date
+        updateUI()
+    }
+
 
 
     //FUNCTION THAT ACTIVITIES CAN CALL TO GET AN INSTANCE OF THE FRAGMENT
@@ -141,7 +154,7 @@ class CrimeFragment : Fragment() {
             val args = Bundle().apply {
                 putSerializable(ARG_CRIME_ID, crimeId) //the crimeId along with a string is saved to the fragment's arguments bundle as an argument (key-value pair)
             }
-            return CrimeFragment().apply { //attaching the arguments bundle to the fragment
+            return CrimeFragment().apply { //attaching the bundle to the fragment's arguments
                 arguments = args
             }
         }
