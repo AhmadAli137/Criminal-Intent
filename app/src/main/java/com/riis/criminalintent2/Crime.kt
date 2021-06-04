@@ -15,7 +15,8 @@ import java.util.*
 data class Crime(@PrimaryKey val id: UUID = UUID.randomUUID(), //random unique id, primary key
                  var title: String = "", //descriptive title
                  var date: Date = Date(), //date
-                 var isSolved: Boolean = false) //boolean indicating whether or not the crime is solved
+                 var isSolved: Boolean = false, //boolean indicating whether or not the crime is solved
+                 var suspect: String = "") //name of suspect
 
 // Each crime object represents a row and each attribute represents a column in a database
 // Each entry in a database is distinguished by its primary key

@@ -16,7 +16,7 @@ class CrimeRepository private constructor(context: Context) {
         context.applicationContext, //application context is provided since database needs access to the filesystem throughout the application lifecycle
         CrimeDatabase::class.java, //the database class being created
         DATABASE_NAME //name of database
-    ).createFromAsset(DATABASE_DIR).build()
+    ).createFromAsset(DATABASE_DIR).addMigrations(migration_1_2).build() //creating the db from assets (if exists) and updating db version
     private val crimeDao = database.crimeDao() //referencing the DAO
 
     //An Executor is an object that references a thread

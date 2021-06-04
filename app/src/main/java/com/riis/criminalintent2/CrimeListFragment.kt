@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +26,10 @@ class CrimeListFragment : Fragment() {
 
     //DEFINING CLASS VARIABLES
     //------------------------
+    private lateinit var emptyScreenPromptLayout: LinearLayout
+    private lateinit var emptyScreenNewCrimeButton: Button
+
+
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     private var callbacks: Callbacks? = null //holds Callbacks objects
@@ -50,6 +52,7 @@ class CrimeListFragment : Fragment() {
         setHasOptionsMenu(true) //because we want this fragment to be able to add its own menu options to
         // ... to the app bar, we need to report this to the host activity so that
         // ... we can override its onCreateOptionsMenu() function
+
     }
 
 
@@ -96,11 +99,25 @@ class CrimeListFragment : Fragment() {
         //referencing the RecyclerView from the layout fragment_crime_list.xml using its View ID
         crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
 
+        emptyScreenNewCrimeButton = view.findViewById(R.id.empty_screen_new_crime_button) as Button
+
+        emptyScreenNewCrimeButton.setOnClickListener {
+            Log.i(TAG, "emptyScreenNewCrimeButton")
+            val crime = Crime() //creating a new Crime object
+            crimeListViewModel.addCrime(crime) //adding the crime to the database
+            callbacks?.onCrimeSelected(crime.id) // passes the crime id to onCrimeSelected() in MainActivity which
+            //                                      ... creates a new CrimeFragment for the crime and displays it on screen
+
+        }
+
         //giving the RecyclerView a LayoutManager which is required to make it work
         //LinearLayoutManager positions the items in its list vertically on the screen
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
 
         crimeRecyclerView.adapter = adapter
+
+        emptyScreenPromptLayout = view.findViewById(R.id.empty_screen_prompt_layout)
+
 
         return view
     }
@@ -118,7 +135,10 @@ class CrimeListFragment : Fragment() {
                     updateUI(crimes) //updates UI with the new crimes data
                 }
             })
+
+
     }
+
 
     //UPDATING UI WHEN UI DATA CHANGES
     //--------------------------------
@@ -128,6 +148,8 @@ class CrimeListFragment : Fragment() {
                                        //...the correct model layer data when asked by the RecyclerView
 
         crimeRecyclerView.adapter = adapter //Connecting the RecyclerView to the adapter
+
+        emptyScreenPromptLayout.visibility = if (crimes.isNotEmpty()) View.GONE else View.VISIBLE
     }
 
     //CREATING AND IMPLEMENTING A ViewHolder TO WRAP THE ITEM VIEWS FOR A RecyclerView
@@ -192,6 +214,9 @@ class CrimeListFragment : Fragment() {
             holder.bind(crime)//binding the holder to the crime
         }
     }
+
+
+
 
     //FUNCTION THAT ACTIVITIES CAN CALL TO GET AN INSTANCE OF THE FRAGMENT
     //--------------------------------------------------------------------
