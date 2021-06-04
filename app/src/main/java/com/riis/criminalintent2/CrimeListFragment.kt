@@ -29,7 +29,6 @@ class CrimeListFragment : Fragment() {
     private lateinit var emptyScreenPromptLayout: LinearLayout
     private lateinit var emptyScreenNewCrimeButton: Button
 
-
     private lateinit var crimeRecyclerView: RecyclerView
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     private var callbacks: Callbacks? = null //holds Callbacks objects
@@ -96,13 +95,13 @@ class CrimeListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false) //inflating the view layout
 
-        //referencing the RecyclerView from the layout fragment_crime_list.xml using its View ID
-        crimeRecyclerView = view.findViewById(R.id.crime_recycler_view) as RecyclerView
+        //referencing Views from the layout fragment_crime_list.xml using their resource IDs
+        crimeRecyclerView = view.findViewById(R.id.crime_recycler_view)
+        emptyScreenNewCrimeButton = view.findViewById(R.id.empty_screen_new_crime_button)
+        emptyScreenPromptLayout = view.findViewById(R.id.empty_screen_prompt_layout)
 
-        emptyScreenNewCrimeButton = view.findViewById(R.id.empty_screen_new_crime_button) as Button
-
+        //If user clicks on the "report new crime" button (if it's visible), create a new crime object and send user to CrimeFragment.kt
         emptyScreenNewCrimeButton.setOnClickListener {
-            Log.i(TAG, "emptyScreenNewCrimeButton")
             val crime = Crime() //creating a new Crime object
             crimeListViewModel.addCrime(crime) //adding the crime to the database
             callbacks?.onCrimeSelected(crime.id) // passes the crime id to onCrimeSelected() in MainActivity which
@@ -115,9 +114,6 @@ class CrimeListFragment : Fragment() {
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
 
         crimeRecyclerView.adapter = adapter
-
-        emptyScreenPromptLayout = view.findViewById(R.id.empty_screen_prompt_layout)
-
 
         return view
     }
@@ -149,6 +145,8 @@ class CrimeListFragment : Fragment() {
 
         crimeRecyclerView.adapter = adapter //Connecting the RecyclerView to the adapter
 
+        //If the crimes list is empty, show the LinearLayout (includes a couple textViews and Button)
+        // ... that prompts the user to report a new crime
         emptyScreenPromptLayout.visibility = if (crimes.isNotEmpty()) View.GONE else View.VISIBLE
     }
 
